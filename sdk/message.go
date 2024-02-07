@@ -3,6 +3,7 @@
 // @see https://sdkgen.app
 
 
+package sdk
 type Message struct {
     Content string `json:"content"`
     Nonce string `json:"nonce"`

@@ -3,6 +3,7 @@
 // @see https://sdkgen.app
 
 
+package sdk
 type MessageAllowedMentions struct {
     Parse []string `json:"parse"`
     Roles []string `json:"roles"`

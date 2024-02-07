@@ -3,6 +3,7 @@
 // @see https://sdkgen.app
 
 
+package sdk
 type MessageReference struct {
     MessageId string `json:"message_id"`
     ChannelId string `json:"channel_id"`
