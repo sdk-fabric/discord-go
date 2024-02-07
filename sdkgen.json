@@ -2,7 +2,8 @@
   "type": "client-go",
   "require": {
     "sdkfabric/discord": {
-      "target": "./sdk"
+      "target": "./sdk",
+      "namespace": "sdk"
     }
   }
 }
