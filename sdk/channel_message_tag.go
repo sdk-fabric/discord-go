@@ -22,7 +22,7 @@ type ChannelMessageTag struct {
 
 
 
-// GetAll Retrieves the messages in a channel
+// GetAll Retrieves the messages in a channel.
 func (client *ChannelMessageTag) GetAll(channelId string, around string, before string, after string, limit int) (Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
