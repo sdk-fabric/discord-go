@@ -22,6 +22,59 @@ type ChannelMessageTag struct {
 
 
 
+// GetAll Retrieves the messages in a channel.
+func (client *ChannelMessageTag) GetAll(channelId string, around string, before string, after string, limit int) ([]Message, error) {
+    pathParams := make(map[string]interface{})
+    pathParams["channel_id"] = channelId
+
+    queryParams := make(map[string]interface{})
+    queryParams["around"] = around
+    queryParams["before"] = before
+    queryParams["after"] = after
+    queryParams["limit"] = limit
+
+    u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages", pathParams))
+    if err != nil {
+        return []Message{}, err
+    }
+
+    u.RawQuery = client.internal.Parser.Query(queryParams).Encode()
+
+
+    req, err := http.NewRequest("GET", u.String(), nil)
+    if err != nil {
+        return []Message{}, err
+    }
+
+
+    resp, err := client.internal.HttpClient.Do(req)
+    if err != nil {
+        return []Message{}, err
+    }
+
+    defer resp.Body.Close()
+
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return []Message{}, err
+    }
+
+    if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+        var response []Message
+        err = json.Unmarshal(respBody, &response)
+        if err != nil {
+            return []Message{}, err
+        }
+
+        return response, nil
+    }
+
+    switch resp.StatusCode {
+        default:
+            return []Message{}, errors.New("the server returned an unknown status code")
+    }
+}
+
 // Get Retrieves a specific message in the channel. Returns a message object on success.
 func (client *ChannelMessageTag) Get(channelId string, messageId string) (Message, error) {
     pathParams := make(map[string]interface{})

@@ -48,13 +48,6 @@ func Build(clientId string, clientSecret string, tokenStore sdkgen.TokenStoreInt
         Scopes: scopes,
     }
 
-    client, err := NewClient("https://discord.com/api/v10", credentials)
-    if err != nil {
-        return &Client{}, err
-    }
-
-    return &Client {
-        internal: client,
-    }, nil
+    return NewClient("https://discord.com/api/v10", credentials)
 }
 
