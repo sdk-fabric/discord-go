@@ -6,7 +6,7 @@
 package sdk
 
 import (
-    
+    "bytes"
     "encoding/json"
     "errors"
     "github.com/apioo/sdkgen-go"
@@ -145,6 +145,63 @@ func (client *ChannelMessageTag) Create(channelId string) (Message, error) {
         return Message{}, err
     }
 
+
+    resp, err := client.internal.HttpClient.Do(req)
+    if err != nil {
+        return Message{}, err
+    }
+
+    defer resp.Body.Close()
+
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return Message{}, err
+    }
+
+    if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+        var response Message
+        err = json.Unmarshal(respBody, &response)
+        if err != nil {
+            return Message{}, err
+        }
+
+        return response, nil
+    }
+
+    switch resp.StatusCode {
+        default:
+            return Message{}, errors.New("the server returned an unknown status code")
+    }
+}
+
+// Update Edit a previously sent message. The fields content, embeds, and flags can be edited by the original message author. Other users can only edit flags and only if they have the MANAGE_MESSAGES permission in the corresponding channel. When specifying flags, ensure to include all previously set flags/bits in addition to ones that you are modifying. Only flags documented in the table below may be modified by users (unsupported flag changes are currently ignored without error).
+func (client *ChannelMessageTag) Update(channelId string, messageId string, payload Message) (Message, error) {
+    pathParams := make(map[string]interface{})
+    pathParams["channel_id"] = channelId
+    pathParams["message_id"] = messageId
+
+    queryParams := make(map[string]interface{})
+
+    u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id", pathParams))
+    if err != nil {
+        return Message{}, err
+    }
+
+    u.RawQuery = client.internal.Parser.Query(queryParams).Encode()
+
+    raw, err := json.Marshal(payload)
+    if err != nil {
+        return Message{}, err
+    }
+
+    var reqBody = bytes.NewReader(raw)
+
+    req, err := http.NewRequest("PATCH", u.String(), reqBody)
+    if err != nil {
+        return Message{}, err
+    }
+
+    req.Header.Set("Content-Type", "application/json")
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
