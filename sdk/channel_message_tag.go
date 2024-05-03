@@ -33,12 +33,14 @@ func (client *ChannelMessageTag) GetAll(channelId string, around string, before 
     queryParams["after"] = after
     queryParams["limit"] = limit
 
+    var queryStructNames []string
+
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages", pathParams))
     if err != nil {
         return []Message{}, err
     }
 
-    u.RawQuery = client.internal.Parser.Query(queryParams).Encode()
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
 
 
     req, err := http.NewRequest("GET", u.String(), nil)
@@ -83,12 +85,14 @@ func (client *ChannelMessageTag) Get(channelId string, messageId string) (Messag
 
     queryParams := make(map[string]interface{})
 
+    var queryStructNames []string
+
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id", pathParams))
     if err != nil {
         return Message{}, err
     }
 
-    u.RawQuery = client.internal.Parser.Query(queryParams).Encode()
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
 
 
     req, err := http.NewRequest("GET", u.String(), nil)
@@ -126,25 +130,34 @@ func (client *ChannelMessageTag) Get(channelId string, messageId string) (Messag
 }
 
 // Create Post a message to a guild text or DM channel. Returns a message object. Fires a Message Create Gateway event. See message formatting for more information on how to properly format messages.
-func (client *ChannelMessageTag) Create(channelId string) (Message, error) {
+func (client *ChannelMessageTag) Create(channelId string, payload Message) (Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
 
     queryParams := make(map[string]interface{})
+
+    var queryStructNames []string
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages", pathParams))
     if err != nil {
         return Message{}, err
     }
 
-    u.RawQuery = client.internal.Parser.Query(queryParams).Encode()
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
 
-
-    req, err := http.NewRequest("POST", u.String(), nil)
+    raw, err := json.Marshal(payload)
     if err != nil {
         return Message{}, err
     }
 
+    var reqBody = bytes.NewReader(raw)
+
+    req, err := http.NewRequest("POST", u.String(), reqBody)
+    if err != nil {
+        return Message{}, err
+    }
+
+    req.Header.Set("Content-Type", "application/json")
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
@@ -182,12 +195,14 @@ func (client *ChannelMessageTag) Update(channelId string, messageId string, payl
 
     queryParams := make(map[string]interface{})
 
+    var queryStructNames []string
+
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id", pathParams))
     if err != nil {
         return Message{}, err
     }
 
-    u.RawQuery = client.internal.Parser.Query(queryParams).Encode()
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
 
     raw, err := json.Marshal(payload)
     if err != nil {
@@ -239,12 +254,14 @@ func (client *ChannelMessageTag) Remove(channelId string, messageId string) (err
 
     queryParams := make(map[string]interface{})
 
+    var queryStructNames []string
+
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id", pathParams))
     if err != nil {
         return err
     }
 
-    u.RawQuery = client.internal.Parser.Query(queryParams).Encode()
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
 
 
     req, err := http.NewRequest("DELETE", u.String(), nil)
@@ -283,12 +300,14 @@ func (client *ChannelMessageTag) Crosspost(channelId string, messageId string) (
 
     queryParams := make(map[string]interface{})
 
+    var queryStructNames []string
+
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id/crosspost", pathParams))
     if err != nil {
         return Message{}, err
     }
 
-    u.RawQuery = client.internal.Parser.Query(queryParams).Encode()
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
 
 
     req, err := http.NewRequest("POST", u.String(), nil)

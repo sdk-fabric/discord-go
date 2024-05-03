@@ -9,6 +9,6 @@ type Message struct {
     Nonce string `json:"nonce"`
     Tts bool `json:"tts"`
     Embeds []MessageEmbed `json:"embeds"`
-    AllowedMentions MessageAllowedMentions `json:"allowed_mentions"`
+    AllowedMentions *MessageAllowedMentions `json:"allowed_mentions"`
     MessageReference string `json:"message_reference"`
 }

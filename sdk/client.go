@@ -39,9 +39,9 @@ func NewClient(baseUrl string, credentials sdkgen.CredentialsInterface) (*Client
 }
 
 func Build(clientId string, clientSecret string, tokenStore sdkgen.TokenStoreInterface, scopes []string) (*Client, error) {
-    var credentials = sdkgen.ClientCredentials{
+    var credentials = sdkgen.OAuth2{
         ClientId: clientId,
-        ClientSecret, clientSecret,
+        ClientSecret: clientSecret,
         TokenUrl: "https://discord.com/api/oauth2/token",
         AuthorizationUrl: "https://discord.com/oauth2/authorize",
         TokenStore: tokenStore,
