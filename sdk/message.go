@@ -11,4 +11,6 @@ type Message struct {
     Embeds []MessageEmbed `json:"embeds"`
     AllowedMentions *MessageAllowedMentions `json:"allowed_mentions"`
     MessageReference string `json:"message_reference"`
+    Flags int `json:"flags"`
+    EnforceNonce bool `json:"enforce_nonce"`
 }
