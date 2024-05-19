@@ -7,12 +7,12 @@ package sdk
 
 import (
     
-    
-    
+    "encoding/json"
+    "errors"
     "github.com/apioo/sdkgen-go"
-    
+    "io"
     "net/http"
-    
+    "net/url"
     
 )
 
@@ -24,6 +24,58 @@ func (client *ChannelTag) Message() *ChannelMessageTag {
     return NewChannelMessageTag(client.internal.HttpClient, client.internal.Parser)
 }
 
+
+
+// GetPins Pin a message in a channel. Requires the MANAGE_MESSAGES permission. Returns a 204 empty response on success. Fires a Channel Pins Update Gateway event.
+func (client *ChannelTag) GetPins(channelId string) ([]Message, error) {
+    pathParams := make(map[string]interface{})
+    pathParams["channel_id"] = channelId
+
+    queryParams := make(map[string]interface{})
+
+    var queryStructNames []string
+
+    u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/pins", pathParams))
+    if err != nil {
+        return []Message{}, err
+    }
+
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
+
+
+    req, err := http.NewRequest("GET", u.String(), nil)
+    if err != nil {
+        return []Message{}, err
+    }
+
+
+    resp, err := client.internal.HttpClient.Do(req)
+    if err != nil {
+        return []Message{}, err
+    }
+
+    defer resp.Body.Close()
+
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return []Message{}, err
+    }
+
+    if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+        var response []Message
+        err = json.Unmarshal(respBody, &response)
+        if err != nil {
+            return []Message{}, err
+        }
+
+        return response, nil
+    }
+
+    switch resp.StatusCode {
+        default:
+            return []Message{}, errors.New("the server returned an unknown status code")
+    }
+}
 
 
 
