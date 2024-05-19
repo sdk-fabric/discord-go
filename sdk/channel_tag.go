@@ -26,7 +26,7 @@ func (client *ChannelTag) Message() *ChannelMessageTag {
 
 
 
-// GetPins Pin a message in a channel. Requires the MANAGE_MESSAGES permission. Returns a 204 empty response on success. Fires a Channel Pins Update Gateway event.
+// GetPins Returns all pinned messages in the channel as an array of message objects.
 func (client *ChannelTag) GetPins(channelId string) ([]Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
