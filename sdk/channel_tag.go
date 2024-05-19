@@ -26,6 +26,57 @@ func (client *ChannelTag) Message() *ChannelMessageTag {
 
 
 
+// Get Get a channel by ID. Returns a channel object.
+func (client *ChannelTag) Get(channelId string) (Channel, error) {
+    pathParams := make(map[string]interface{})
+    pathParams["channel_id"] = channelId
+
+    queryParams := make(map[string]interface{})
+
+    var queryStructNames []string
+
+    u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id", pathParams))
+    if err != nil {
+        return Channel{}, err
+    }
+
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
+
+
+    req, err := http.NewRequest("GET", u.String(), nil)
+    if err != nil {
+        return Channel{}, err
+    }
+
+
+    resp, err := client.internal.HttpClient.Do(req)
+    if err != nil {
+        return Channel{}, err
+    }
+
+    defer resp.Body.Close()
+
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return Channel{}, err
+    }
+
+    if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+        var response Channel
+        err = json.Unmarshal(respBody, &response)
+        if err != nil {
+            return Channel{}, err
+        }
+
+        return response, nil
+    }
+
+    switch resp.StatusCode {
+        default:
+            return Channel{}, errors.New("the server returned an unknown status code")
+    }
+}
+
 // GetPins Returns all pinned messages in the channel as an array of message objects.
 func (client *ChannelTag) GetPins(channelId string) ([]Message, error) {
     pathParams := make(map[string]interface{})
