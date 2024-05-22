@@ -24,6 +24,10 @@ func (client *ChannelTag) Message() *ChannelMessageTag {
     return NewChannelMessageTag(client.internal.HttpClient, client.internal.Parser)
 }
 
+func (client *ChannelTag) Reaction() *ChannelReactionTag {
+    return NewChannelReactionTag(client.internal.HttpClient, client.internal.Parser)
+}
+
 
 
 // Get Get a channel by ID. Returns a channel object.
