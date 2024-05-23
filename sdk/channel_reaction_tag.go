@@ -78,6 +78,52 @@ func (client *ChannelReactionTag) GetAll(channelId string, messageId string, emo
     }
 }
 
+// DeleteAll 
+func (client *ChannelReactionTag) DeleteAll(channelId string, messageId string) (error) {
+    pathParams := make(map[string]interface{})
+    pathParams["channel_id"] = channelId
+    pathParams["message_id"] = messageId
+
+    queryParams := make(map[string]interface{})
+
+    var queryStructNames []string
+
+    u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id/reactions", pathParams))
+    if err != nil {
+        return err
+    }
+
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
+
+
+    req, err := http.NewRequest("DELETE", u.String(), nil)
+    if err != nil {
+        return err
+    }
+
+
+    resp, err := client.internal.HttpClient.Do(req)
+    if err != nil {
+        return err
+    }
+
+    defer resp.Body.Close()
+
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return err
+    }
+
+    if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+        return nil
+    }
+
+    switch resp.StatusCode {
+        default:
+            return errors.New("the server returned an unknown status code")
+    }
+}
+
 
 
 func NewChannelReactionTag(httpClient *http.Client, parser *sdkgen.Parser) *ChannelReactionTag {
