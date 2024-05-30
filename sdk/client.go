@@ -24,6 +24,10 @@ func (client *Client) Channel() *ChannelTag {
     return NewChannelTag(client.internal.HttpClient, client.internal.Parser)
 }
 
+func (client *Client) User() *UserTag {
+    return NewUserTag(client.internal.HttpClient, client.internal.Parser)
+}
+
 
 
 
