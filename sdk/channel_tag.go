@@ -76,6 +76,36 @@ func (client *ChannelTag) Get(channelId string) (Channel, error) {
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Channel{}, err
+            }
+
+            return Channel{}, &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Channel{}, err
+            }
+
+            return Channel{}, &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Channel{}, err
+            }
+
+            return Channel{}, &ErrorException{
+                Payload: response,
+            }
         default:
             return Channel{}, errors.New("the server returned an unknown status code")
     }
@@ -127,6 +157,36 @@ func (client *ChannelTag) GetPins(channelId string) ([]Message, error) {
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []Message{}, err
+            }
+
+            return []Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []Message{}, err
+            }
+
+            return []Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []Message{}, err
+            }
+
+            return []Message{}, &ErrorException{
+                Payload: response,
+            }
         default:
             return []Message{}, errors.New("the server returned an unknown status code")
     }

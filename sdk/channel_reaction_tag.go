@@ -73,6 +73,36 @@ func (client *ChannelReactionTag) GetAll(channelId string, messageId string, emo
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []User{}, err
+            }
+
+            return []User{}, &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []User{}, err
+            }
+
+            return []User{}, &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []User{}, err
+            }
+
+            return []User{}, &ErrorException{
+                Payload: response,
+            }
         default:
             return []User{}, errors.New("the server returned an unknown status code")
     }
@@ -119,6 +149,36 @@ func (client *ChannelReactionTag) DeleteAll(channelId string, messageId string) 
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return err
+            }
+
+            return &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return err
+            }
+
+            return &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return err
+            }
+
+            return &ErrorException{
+                Payload: response,
+            }
         default:
             return errors.New("the server returned an unknown status code")
     }

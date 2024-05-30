@@ -72,6 +72,36 @@ func (client *ChannelMessageTag) GetAll(channelId string, around string, before 
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []Message{}, err
+            }
+
+            return []Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []Message{}, err
+            }
+
+            return []Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return []Message{}, err
+            }
+
+            return []Message{}, &ErrorException{
+                Payload: response,
+            }
         default:
             return []Message{}, errors.New("the server returned an unknown status code")
     }
@@ -124,6 +154,36 @@ func (client *ChannelMessageTag) Get(channelId string, messageId string) (Messag
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
         default:
             return Message{}, errors.New("the server returned an unknown status code")
     }
@@ -182,6 +242,36 @@ func (client *ChannelMessageTag) Create(channelId string, payload Message) (Mess
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
         default:
             return Message{}, errors.New("the server returned an unknown status code")
     }
@@ -241,6 +331,36 @@ func (client *ChannelMessageTag) Update(channelId string, messageId string, payl
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
         default:
             return Message{}, errors.New("the server returned an unknown status code")
     }
@@ -287,6 +407,36 @@ func (client *ChannelMessageTag) Remove(channelId string, messageId string) (err
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return err
+            }
+
+            return &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return err
+            }
+
+            return &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return err
+            }
+
+            return &ErrorException{
+                Payload: response,
+            }
         default:
             return errors.New("the server returned an unknown status code")
     }
@@ -339,6 +489,36 @@ func (client *ChannelMessageTag) Crosspost(channelId string, messageId string) (
     }
 
     switch resp.StatusCode {
+        case 400:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 404:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
+        case 500:
+            var response Error
+            err = json.Unmarshal(respBody, &response)
+            if err != nil {
+                return Message{}, err
+            }
+
+            return Message{}, &ErrorException{
+                Payload: response,
+            }
         default:
             return Message{}, errors.New("the server returned an unknown status code")
     }
