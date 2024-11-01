@@ -9,7 +9,8 @@ import (
     
     "encoding/json"
     "errors"
-    "github.com/apioo/sdkgen-go"
+    "fmt"
+    
     "io"
     "net/http"
     "net/url"
@@ -18,14 +19,6 @@ import (
 
 type ChannelTag struct {
     internal *sdkgen.TagAbstract
-}
-
-func (client *ChannelTag) Message() *ChannelMessageTag {
-    return NewChannelMessageTag(client.internal.HttpClient, client.internal.Parser)
-}
-
-func (client *ChannelTag) Reaction() *ChannelReactionTag {
-    return NewChannelReactionTag(client.internal.HttpClient, client.internal.Parser)
 }
 
 
@@ -66,49 +59,44 @@ func (client *ChannelTag) Get(channelId string) (Channel, error) {
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-        var response Channel
-        err = json.Unmarshal(respBody, &response)
-        if err != nil {
-            return Channel{}, err
+        var data Channel
+        err := json.Unmarshal(respBody, &data)
+
+        return data, err
+    }
+
+    var statusCode = resp.StatusCode
+    if statusCode == 400 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
+
+        return Channel{}, &ErrorException{
+            Payload: data,
+            Previous: err,
         }
-
-        return response, nil
     }
 
-    switch resp.StatusCode {
-        case 400:
-            var response Error
-            err = json.Unmarshal(respBody, &response)
-            if err != nil {
-                return Channel{}, err
-            }
+    if statusCode == 404 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
 
-            return Channel{}, &ErrorException{
-                Payload: response,
-            }
-        case 404:
-            var response Error
-            err = json.Unmarshal(respBody, &response)
-            if err != nil {
-                return Channel{}, err
-            }
-
-            return Channel{}, &ErrorException{
-                Payload: response,
-            }
-        case 500:
-            var response Error
-            err = json.Unmarshal(respBody, &response)
-            if err != nil {
-                return Channel{}, err
-            }
-
-            return Channel{}, &ErrorException{
-                Payload: response,
-            }
-        default:
-            return Channel{}, errors.New("the server returned an unknown status code")
+        return Channel{}, &ErrorException{
+            Payload: data,
+            Previous: err,
+        }
     }
+
+    if statusCode == 500 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
+
+        return Channel{}, &ErrorException{
+            Payload: data,
+            Previous: err,
+        }
+    }
+
+    return Channel{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 // GetPins Returns all pinned messages in the channel as an array of message objects.
@@ -147,50 +135,46 @@ func (client *ChannelTag) GetPins(channelId string) ([]Message, error) {
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-        var response []Message
-        err = json.Unmarshal(respBody, &response)
-        if err != nil {
-            return []Message{}, err
+        var data []Message
+        err := json.Unmarshal(respBody, &data)
+
+        return data, err
+    }
+
+    var statusCode = resp.StatusCode
+    if statusCode == 400 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
+
+        return []Message{}, &ErrorException{
+            Payload: data,
+            Previous: err,
         }
-
-        return response, nil
     }
 
-    switch resp.StatusCode {
-        case 400:
-            var response Error
-            err = json.Unmarshal(respBody, &response)
-            if err != nil {
-                return []Message{}, err
-            }
+    if statusCode == 404 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
 
-            return []Message{}, &ErrorException{
-                Payload: response,
-            }
-        case 404:
-            var response Error
-            err = json.Unmarshal(respBody, &response)
-            if err != nil {
-                return []Message{}, err
-            }
-
-            return []Message{}, &ErrorException{
-                Payload: response,
-            }
-        case 500:
-            var response Error
-            err = json.Unmarshal(respBody, &response)
-            if err != nil {
-                return []Message{}, err
-            }
-
-            return []Message{}, &ErrorException{
-                Payload: response,
-            }
-        default:
-            return []Message{}, errors.New("the server returned an unknown status code")
+        return []Message{}, &ErrorException{
+            Payload: data,
+            Previous: err,
+        }
     }
+
+    if statusCode == 500 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
+
+        return []Message{}, &ErrorException{
+            Payload: data,
+            Previous: err,
+        }
+    }
+
+    return []Message{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
+
 
 
 

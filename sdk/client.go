@@ -9,6 +9,7 @@ import (
     
     
     
+    
     "github.com/apioo/sdkgen-go"
     
     
@@ -22,6 +23,10 @@ type Client struct {
 
 func (client *Client) Channel() *ChannelTag {
     return NewChannelTag(client.internal.HttpClient, client.internal.Parser)
+}
+
+func (client *Client) Message() *MessageTag {
+    return NewMessageTag(client.internal.HttpClient, client.internal.Parser)
 }
 
 func (client *Client) User() *UserTag {
@@ -48,3 +53,8 @@ func Build(token string) (*Client, error) {
     return NewClient("https://discord.com/api/v10", credentials)
 }
 
+func BuildAnonymous() (*Client, error) {
+    var credentials = sdkgen.Anonymous{}
+
+    return NewClient("https://discord.com/api/v10", credentials)
+}
