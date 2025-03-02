@@ -141,6 +141,62 @@ func (client *ChannelTag) Update(channelId string, payload ChannelUpdate) (*Chan
     return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
+// Delete Delete a channel, or close a private message. Requires the MANAGE_CHANNELS permission for the guild, or MANAGE_THREADS if the channel is a thread. Deleting a category does not delete its child channels; they will have their parent_id removed and a Channel Update Gateway event will fire for each of them. Returns a channel object on success. Fires a Channel Delete Gateway event (or Thread Delete if the channel was a thread).
+func (client *ChannelTag) Delete(channelId string) (*Channel, error) {
+    pathParams := make(map[string]interface{})
+    pathParams["channel_id"] = channelId
+
+    queryParams := make(map[string]interface{})
+
+    var queryStructNames []string
+
+    u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id", pathParams))
+    if err != nil {
+        return nil, err
+    }
+
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
+
+
+    req, err := http.NewRequest("DELETE", u.String(), nil)
+    if err != nil {
+        return nil, err
+    }
+
+
+    resp, err := client.internal.HttpClient.Do(req)
+    if err != nil {
+        return nil, err
+    }
+
+    defer resp.Body.Close()
+
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return nil, err
+    }
+
+    if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+        var data Channel
+        err := json.Unmarshal(respBody, &data)
+
+        return &data, err
+    }
+
+    var statusCode = resp.StatusCode
+    if statusCode >= 0 && statusCode <= 999 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
+
+        return nil, &ErrorException{
+            Payload: data,
+            Previous: err,
+        }
+    }
+
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+}
+
 // GetPins Returns all pinned messages in the channel as an array of message objects.
 func (client *ChannelTag) GetPins(channelId string) (*[]Message, error) {
     pathParams := make(map[string]interface{})
