@@ -3,7 +3,6 @@
 // @see https://sdkgen.app
 
 
-package sdk
 type User struct {
     Id string `json:"id"`
     Username string `json:"username"`
@@ -22,3 +21,4 @@ type User struct {
     PremiumType int `json:"premium_type"`
     PublicFlags int `json:"public_flags"`
 }
+

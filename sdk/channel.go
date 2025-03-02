@@ -3,7 +3,6 @@
 // @see https://sdkgen.app
 
 
-package sdk
 type Channel struct {
     Id string `json:"id"`
     Type int `json:"type"`
@@ -33,3 +32,4 @@ type Channel struct {
     DefaultSortOrder int `json:"default_sort_order"`
     DefaultForumLayout int `json:"default_forum_layout"`
 }
+

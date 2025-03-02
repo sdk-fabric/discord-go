@@ -3,9 +3,9 @@
 // @see https://sdkgen.app
 
 
-package sdk
 type Error struct {
     Code int `json:"code"`
     Message string `json:"message"`
     Errors any `json:`
 }
+

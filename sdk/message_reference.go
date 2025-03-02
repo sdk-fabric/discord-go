@@ -3,10 +3,10 @@
 // @see https://sdkgen.app
 
 
-package sdk
 type MessageReference struct {
     MessageId string `json:"message_id"`
     ChannelId string `json:"channel_id"`
     GuildId string `json:"guild_id"`
     FailIfNotExists bool `json:"fail_if_not_exists"`
 }
+

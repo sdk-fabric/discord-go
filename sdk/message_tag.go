@@ -3,14 +3,13 @@
 // @see https://sdkgen.app
 
 
-package sdk
 
 import (
     "bytes"
     "encoding/json"
     "errors"
     "fmt"
-    
+    "github.com/apioo/sdkgen-go/v2"
     "io"
     "net/http"
     "net/url"
@@ -24,7 +23,7 @@ type MessageTag struct {
 
 
 // GetAll Retrieves the messages in a channel.
-func (client *MessageTag) GetAll(channelId string, around string, before string, after string, limit int) ([]Message, error) {
+func (client *MessageTag) GetAll(channelId string, around string, before string, after string, limit int) (*[]Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
 
@@ -38,7 +37,7 @@ func (client *MessageTag) GetAll(channelId string, around string, before string,
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages", pathParams))
     if err != nil {
-        return []Message{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
@@ -46,65 +45,45 @@ func (client *MessageTag) GetAll(channelId string, around string, before string,
 
     req, err := http.NewRequest("GET", u.String(), nil)
     if err != nil {
-        return []Message{}, err
+        return nil, err
     }
 
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return []Message{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return []Message{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data []Message
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return []Message{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return []Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return []Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    return []Message{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 // Get Retrieves a specific message in the channel. Returns a message object on success.
-func (client *MessageTag) Get(channelId string, messageId string) (Message, error) {
+func (client *MessageTag) Get(channelId string, messageId string) (*Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
     pathParams["message_id"] = messageId
@@ -115,7 +94,7 @@ func (client *MessageTag) Get(channelId string, messageId string) (Message, erro
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id", pathParams))
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
@@ -123,65 +102,45 @@ func (client *MessageTag) Get(channelId string, messageId string) (Message, erro
 
     req, err := http.NewRequest("GET", u.String(), nil)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data Message
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return Message{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    return Message{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 // Create Post a message to a guild text or DM channel. Returns a message object. Fires a Message Create Gateway event. See message formatting for more information on how to properly format messages.
-func (client *MessageTag) Create(channelId string, payload Message) (Message, error) {
+func (client *MessageTag) Create(channelId string, payload Message) (*Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
 
@@ -191,80 +150,60 @@ func (client *MessageTag) Create(channelId string, payload Message) (Message, er
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages", pathParams))
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
 
     raw, err := json.Marshal(payload)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     var reqBody = bytes.NewReader(raw)
 
     req, err := http.NewRequest("POST", u.String(), reqBody)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     req.Header.Set("Content-Type", "application/json")
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data Message
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return Message{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    return Message{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 // Update Edit a previously sent message. The fields content, embeds, and flags can be edited by the original message author. Other users can only edit flags and only if they have the MANAGE_MESSAGES permission in the corresponding channel. When specifying flags, ensure to include all previously set flags/bits in addition to ones that you are modifying. Only flags documented in the table below may be modified by users (unsupported flag changes are currently ignored without error).
-func (client *MessageTag) Update(channelId string, messageId string, payload Message) (Message, error) {
+func (client *MessageTag) Update(channelId string, messageId string, payload Message) (*Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
     pathParams["message_id"] = messageId
@@ -275,76 +214,56 @@ func (client *MessageTag) Update(channelId string, messageId string, payload Mes
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id", pathParams))
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
 
     raw, err := json.Marshal(payload)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     var reqBody = bytes.NewReader(raw)
 
     req, err := http.NewRequest("PATCH", u.String(), reqBody)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     req.Header.Set("Content-Type", "application/json")
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data Message
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return Message{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    return Message{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 // Remove Delete a message. If operating on a guild channel and trying to delete a message that was not sent by the current user, this endpoint requires the MANAGE_MESSAGES permission.
@@ -388,27 +307,7 @@ func (client *MessageTag) Remove(channelId string, messageId string) (error) {
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
@@ -422,7 +321,7 @@ func (client *MessageTag) Remove(channelId string, messageId string) (error) {
 }
 
 // Crosspost Crosspost a message in an Announcement Channel to following channels. This endpoint requires the SEND_MESSAGES permission, if the current user sent the message, or additionally the MANAGE_MESSAGES permission, for all other messages, to be present for the current user.
-func (client *MessageTag) Crosspost(channelId string, messageId string) (Message, error) {
+func (client *MessageTag) Crosspost(channelId string, messageId string) (*Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
     pathParams["message_id"] = messageId
@@ -433,7 +332,7 @@ func (client *MessageTag) Crosspost(channelId string, messageId string) (Message
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id/crosspost", pathParams))
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
@@ -441,65 +340,45 @@ func (client *MessageTag) Crosspost(channelId string, messageId string) (Message
 
     req, err := http.NewRequest("POST", u.String(), nil)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return Message{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data Message
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return Message{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    return Message{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 // GetReactionsByEmoji 
-func (client *MessageTag) GetReactionsByEmoji(channelId string, messageId string, emoji string, _type int, after string, limit int) ([]User, error) {
+func (client *MessageTag) GetReactionsByEmoji(channelId string, messageId string, emoji string, _type int, after string, limit int) (*[]User, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
     pathParams["message_id"] = messageId
@@ -514,7 +393,7 @@ func (client *MessageTag) GetReactionsByEmoji(channelId string, messageId string
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/messages/:message_id/reactions/:emoji", pathParams))
     if err != nil {
-        return []User{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
@@ -522,61 +401,41 @@ func (client *MessageTag) GetReactionsByEmoji(channelId string, messageId string
 
     req, err := http.NewRequest("GET", u.String(), nil)
     if err != nil {
-        return []User{}, err
+        return nil, err
     }
 
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return []User{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return []User{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data []User
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return []User{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return []User{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return []User{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    return []User{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 // DeleteAllReactions 
@@ -620,27 +479,7 @@ func (client *MessageTag) DeleteAllReactions(channelId string, messageId string)
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 

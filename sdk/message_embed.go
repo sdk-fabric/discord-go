@@ -3,7 +3,6 @@
 // @see https://sdkgen.app
 
 
-package sdk
 type MessageEmbed struct {
     Title string `json:"title"`
     Type string `json:"type"`
@@ -12,3 +11,4 @@ type MessageEmbed struct {
     Timestamp string `json:"timestamp"`
     Color int `json:"color"`
 }
+

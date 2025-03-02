@@ -3,14 +3,13 @@
 // @see https://sdkgen.app
 
 
-package sdk
 
 import (
     
     "encoding/json"
     "errors"
     "fmt"
-    
+    "github.com/apioo/sdkgen-go/v2"
     "io"
     "net/http"
     "net/url"
@@ -23,8 +22,8 @@ type UserTag struct {
 
 
 
-// Get Returns the user object of the requester&#039;s account. For OAuth2, this requires the identify scope, which will return the object without an email, and optionally the email scope, which returns the object with an email.
-func (client *UserTag) Get() (User, error) {
+// GetCurrent Returns the user object of the requester&#039;s account. For OAuth2, this requires the identify scope, which will return the object without an email, and optionally the email scope, which returns the object with an email.
+func (client *UserTag) GetCurrent() (*User, error) {
     pathParams := make(map[string]interface{})
 
     queryParams := make(map[string]interface{})
@@ -33,7 +32,7 @@ func (client *UserTag) Get() (User, error) {
 
     u, err := url.Parse(client.internal.Parser.Url("/users/@me", pathParams))
     if err != nil {
-        return User{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
@@ -41,31 +40,97 @@ func (client *UserTag) Get() (User, error) {
 
     req, err := http.NewRequest("GET", u.String(), nil)
     if err != nil {
-        return User{}, err
+        return nil, err
     }
 
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return User{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return User{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data User
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    return User{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    if statusCode >= 0 && statusCode <= 999 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
+
+        return nil, &ErrorException{
+            Payload: data,
+            Previous: err,
+        }
+    }
+
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+}
+
+// Get Returns a user object for a given user ID.
+func (client *UserTag) Get(userId string) (*User, error) {
+    pathParams := make(map[string]interface{})
+    pathParams["user_id"] = userId
+
+    queryParams := make(map[string]interface{})
+
+    var queryStructNames []string
+
+    u, err := url.Parse(client.internal.Parser.Url("/users/:user_id", pathParams))
+    if err != nil {
+        return nil, err
+    }
+
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
+
+
+    req, err := http.NewRequest("GET", u.String(), nil)
+    if err != nil {
+        return nil, err
+    }
+
+
+    resp, err := client.internal.HttpClient.Do(req)
+    if err != nil {
+        return nil, err
+    }
+
+    defer resp.Body.Close()
+
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return nil, err
+    }
+
+    if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+        var data User
+        err := json.Unmarshal(respBody, &data)
+
+        return &data, err
+    }
+
+    var statusCode = resp.StatusCode
+    if statusCode >= 0 && statusCode <= 999 {
+        var data Error
+        err := json.Unmarshal(respBody, &data)
+
+        return nil, &ErrorException{
+            Payload: data,
+            Previous: err,
+        }
+    }
+
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 

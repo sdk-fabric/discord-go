@@ -3,14 +3,13 @@
 // @see https://sdkgen.app
 
 
-package sdk
 
 import (
-    
+    "bytes"
     "encoding/json"
     "errors"
     "fmt"
-    
+    "github.com/apioo/sdkgen-go/v2"
     "io"
     "net/http"
     "net/url"
@@ -24,7 +23,7 @@ type ChannelTag struct {
 
 
 // Get Get a channel by ID. Returns a channel object.
-func (client *ChannelTag) Get(channelId string) (Channel, error) {
+func (client *ChannelTag) Get(channelId string) (*Channel, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
 
@@ -34,7 +33,7 @@ func (client *ChannelTag) Get(channelId string) (Channel, error) {
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id", pathParams))
     if err != nil {
-        return Channel{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
@@ -42,65 +41,108 @@ func (client *ChannelTag) Get(channelId string) (Channel, error) {
 
     req, err := http.NewRequest("GET", u.String(), nil)
     if err != nil {
-        return Channel{}, err
+        return nil, err
     }
 
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return Channel{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return Channel{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data Channel
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return Channel{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 404 {
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+}
+
+// Update Update a channel&#039;s settings. Returns a channel on success, and a 400 BAD REQUEST on invalid parameters.
+func (client *ChannelTag) Update(channelId string, payload ChannelUpdate) (*Channel, error) {
+    pathParams := make(map[string]interface{})
+    pathParams["channel_id"] = channelId
+
+    queryParams := make(map[string]interface{})
+
+    var queryStructNames []string
+
+    u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id", pathParams))
+    if err != nil {
+        return nil, err
+    }
+
+    u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
+
+    raw, err := json.Marshal(payload)
+    if err != nil {
+        return nil, err
+    }
+
+    var reqBody = bytes.NewReader(raw)
+
+    req, err := http.NewRequest("PATCH", u.String(), reqBody)
+    if err != nil {
+        return nil, err
+    }
+
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := client.internal.HttpClient.Do(req)
+    if err != nil {
+        return nil, err
+    }
+
+    defer resp.Body.Close()
+
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return nil, err
+    }
+
+    if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+        var data Channel
+        err := json.Unmarshal(respBody, &data)
+
+        return &data, err
+    }
+
+    var statusCode = resp.StatusCode
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return Channel{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 500 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return Channel{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    return Channel{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 // GetPins Returns all pinned messages in the channel as an array of message objects.
-func (client *ChannelTag) GetPins(channelId string) ([]Message, error) {
+func (client *ChannelTag) GetPins(channelId string) (*[]Message, error) {
     pathParams := make(map[string]interface{})
     pathParams["channel_id"] = channelId
 
@@ -110,7 +152,7 @@ func (client *ChannelTag) GetPins(channelId string) ([]Message, error) {
 
     u, err := url.Parse(client.internal.Parser.Url("/channels/:channel_id/pins", pathParams))
     if err != nil {
-        return []Message{}, err
+        return nil, err
     }
 
     u.RawQuery = client.internal.Parser.QueryWithStruct(queryParams, queryStructNames).Encode()
@@ -118,61 +160,41 @@ func (client *ChannelTag) GetPins(channelId string) ([]Message, error) {
 
     req, err := http.NewRequest("GET", u.String(), nil)
     if err != nil {
-        return []Message{}, err
+        return nil, err
     }
 
 
     resp, err := client.internal.HttpClient.Do(req)
     if err != nil {
-        return []Message{}, err
+        return nil, err
     }
 
     defer resp.Body.Close()
 
     respBody, err := io.ReadAll(resp.Body)
     if err != nil {
-        return []Message{}, err
+        return nil, err
     }
 
     if resp.StatusCode >= 200 && resp.StatusCode < 300 {
         var data []Message
         err := json.Unmarshal(respBody, &data)
 
-        return data, err
+        return &data, err
     }
 
     var statusCode = resp.StatusCode
-    if statusCode == 400 {
+    if statusCode >= 0 && statusCode <= 999 {
         var data Error
         err := json.Unmarshal(respBody, &data)
 
-        return []Message{}, &ErrorException{
+        return nil, &ErrorException{
             Payload: data,
             Previous: err,
         }
     }
 
-    if statusCode == 404 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return []Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    if statusCode == 500 {
-        var data Error
-        err := json.Unmarshal(respBody, &data)
-
-        return []Message{}, &ErrorException{
-            Payload: data,
-            Previous: err,
-        }
-    }
-
-    return []Message{}, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
+    return nil, errors.New(fmt.Sprint("The server returned an unknown status code: ", statusCode))
 }
 
 
