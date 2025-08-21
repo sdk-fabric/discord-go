@@ -1,4 +1,4 @@
-module github.com/sdk-fabric/discord
+module github.com/sdk-fabric/discord-go
 
 go 1.18
 
