@@ -17,45 +17,45 @@ import (
 var client, _ = sdk.Build("[access_token]");
 
 // Get a channel by ID.
-response, err := client.Channel().Get("channel_id")
+response, err := client.Channel().get("channel_id")
 
 // Update a channel's settings.
-response, err := client.Channel().Update("channel_id", ChannelUpdate{})
+response, err := client.Channel().update("channel_id", Channel_Update{})
 
 // Delete a channel, or close a private message.
-response, err := client.Channel().Delete("channel_id")
+response, err := client.Channel().delete("channel_id")
 
 // Returns all pinned messages in the channel as an array of message objects.
-response, err := client.Channel().Getpins("channel_id")
+response, err := client.Channel().getPins("channel_id")
 
 // Create a new invite object for the channel.
-response, err := client.Channel().Createinvite("channel_id", ChannelInvite{})
+response, err := client.Channel().createInvite("channel_id", Channel_Invite{})
 
 // Retrieves the messages in a channel.
-response, err := client.Message().Getall("channel_id", "around", "before", "after", 1)
+response, err := client.Message().getAll("channel_id", "around", "before", "after", 1)
 
 // Retrieves a specific message in the channel.
-response, err := client.Message().Get("channel_id", "message_id")
+response, err := client.Message().get("channel_id", "message_id")
 
 // Post a message to a guild text or DM channel.
-response, err := client.Message().Create("channel_id", Message{})
+response, err := client.Message().create("channel_id", Message{})
 
 // Edit a previously sent message.
-response, err := client.Message().Update("channel_id", "message_id", Message{})
+response, err := client.Message().update("channel_id", "message_id", Message{})
 
 // Delete a message.
-response, err := client.Message().Remove("channel_id", "message_id")
+response, err := client.Message().remove("channel_id", "message_id")
 
 // Crosspost a message in an Announcement Channel to following channels.
-response, err := client.Message().Crosspost("channel_id", "message_id")
+response, err := client.Message().crosspost("channel_id", "message_id")
 
-response, err := client.Message().Getreactionsbyemoji("channel_id", "message_id", "emoji", 1, "after", 1)
+response, err := client.Message().getReactionsByEmoji("channel_id", "message_id", "emoji", 1, "after", 1)
 
-response, err := client.Message().Deleteallreactions("channel_id", "message_id")
+response, err := client.Message().deleteAllReactions("channel_id", "message_id")
 
 // Returns the user object of the requester's account.
-response, err := client.User().Getcurrent()
+response, err := client.User().getCurrent()
 
 // Returns a user object for a given user ID.
-response, err := client.User().Get("user_id")
+response, err := client.User().get("user_id")
 ```
